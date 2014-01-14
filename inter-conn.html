@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+<style>
+  body {
+    font-size: 12px;
+  }
+  
+  .data-input-section {
+    width: 33%;
+    float: left;
+  }
+  
+  .data-input-section textarea {
+    width: 90%;
+    max-width: 95%;
+    font-family: Consolas;
+    font-size: 10pt;
+  }
+  
+  .link-info {
+    background-color: #eee;
+    display: inline-block;
+    position: absolute;
+    top:10%;left:80%;
+  }
+  
+  #time-span-chooser {
+    background-color: #eee;
+    display: inline-block;
+    position: absolute;
+    top:10%;left:10%;
+  }
+  
+  #events-box {
+    display: inline-block;
+    background-color: #eee;
+    position: absolute;
+    top:30%;left:10%;
+  }
+  
+  #events-accordion-resizer {
+    padding: 10px;
+    width: 200px;
+    height: 220px;
+  }
+</style>
+
+<style>
+.node {}
+
+.node-human {
+  stroke: #aa0;
+  fill: #FFD551;
+  stroke-width: 1.5px;
+}
+
+.node-thing {
+  stroke: #E947FF;
+  fill: #F189FF;
+  stroke-width: 1.5px;
+}
+
+.node-firm {
+  stroke: #5A5AFF;
+  fill: #99F;
+  stroke-width: 1.5px;
+}
+
+.link{
+    stroke-width: 4px;
+}
+
+.link-known {
+  stroke: #00AF62;
+  stroke-opacity: .6;
+}
+
+.link-guesswork {
+  stroke: #bbb;
+  stroke-opacity: .6;
+}
+
+.link-interesting {
+  stroke: #0f0;
+  stroke-opacity: .6;
+}
+
+.node text {
+  pointer-events: none;
+  font: 10px sans-serif;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 5px;
+    background-color:#eee;
+}
+
+td {
+    border: solid 1px black;
+    padding: 5px;
+}
+
+g.month rect {
+    fill:white;
+    stroke: black;
+}
+
+g.day rect {
+    fill:white;
+    stroke: black;
+}
+</style>
+
+</head>
+<body>
+
+<div id="sides-of-the-coin">
+  <ul>
+    <li><a href="#tab-viz">visualization</a></li>
+    <li><a href="#tab-data">data input</a></li>
+  </ul>
+  <div id="tab-viz">
+    <svg id="d3-graph"></svg>
+    
+    <div class="link-info"></div>
+    <div id="time-span-chooser"></div>
+    <div id="events-box">
+    </div>
+    
+  </div>
+  <div id="tab-data">
+    <div id="toolbar">
+      <button id="render-visualization">play</button>
+    </div>
+    <div id="nodes-input-section" class="data-input-section">
+      <span>nodes input</span><br/>
+      <textarea id="nodes-data" wrap="off"></textarea>
+    </div>
+    <div id="links-input-section" class="data-input-section">
+      <span>links input</span><br/>
+      <textarea id="links-data" wrap="off"></textarea>
+    </div>
+    <div id="events-input-section" class="data-input-section">
+      <span>events input</span><br/>
+      <textarea id="events-data" wrap="off"></textarea>
+    </div>
+  </div>
+</div>
+
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+<!-- set up of UI -->
+<script>
+  var utilizedHeight = $(document).height()-50;
+  
+  $(function() {
+    $("#sides-of-the-coin").tabs().css("height",utilizedHeight);
+    $(".data-input-section textarea").css("height",utilizedHeight*0.8);
+    $(".link-info").draggable().css({visibility:"hidden",display:"none"});
+    $("#time-span-chooser").draggable();
+    $("#events-box").draggable();
+    $("#render-visualization").click(renderVisualization);
+  });
+  
+  <!-- fill up text areas for development -->
+  $("#nodes-data").val('id,name,type,desc\nARo,"Andreas Roschu",human,""\nGla,"GladII 1.1.3",thing,""\nDuP,"Diehl & Partner",firm,""\nITG,"ITGuards",firm,""\nArc,"The Archive AG",firm,""\nEVf,"Einstweilige Verfügung",thing,""\nLGK,"Landesgericht Köln",firm,""\nAsS,"Amandas Secret",thing,""\nSCo,"Serrato Consultores",firm,""\nHPr,"Hausner Productions",firm,""\nJuS,"Jutta Schilling",human,""\nGPS,"Gernot Paul Siegfried Schenk",human,""\nDaS,"Daniel Sebastian",human,""\nUuC,"Urmann + Collegen",firm,""\nThU,"Thomas Urmann",human,""\nWXS,"Wurstfirma Xaver Schwarz",firm,""\nWgM,"Wolfgang Meindl",human,""\nWdM,"Wolfhard Meindl",human,""\nVPP,"Verfahren bzgl. Porno-Pranger",firm,""\nMik,"Mikrofaktor UG",firm,""\nSKB,"SKB UG",firm,""\nPKa,"Pavel Karaoglanov",human,""\nPWi,"Philipp Wiik",human,""\nPMa,"Peter Matthias",human,""\nRRt,"Ralf Reichert",human,""\nMoP,"Moses Pelham",human,""\nDig,"DigiProtect",firm,""\n');
+  $("#links-data").val('idA,idB,type,desc,src\nARo,Gla,known,"",""\nDuP,Gla,known,"",""\nITG,Gla,known,"",""\nLGK,EVf,known,"",""\nAsS,EVf,known,"",""\nHPr,AsS,known,"",""\nSCo,AsS,known,"",""\nGPS,SCo,known,"",""\nJuS,SCo,known,"",""\nEVf,Arc,known,"",""\nITG,Arc,known,"",""\nArc,DaS,known,"",""\nDaS,UuC,known,"",""\nThU,UuC,known,"",""\nPWi,Arc,known,"",""\nPMa,Arc,known,"",""\nRRt,Arc,known,"",""\nMoP,RRt,known,"",""\nMoP,Dig,known,"",""\nUuC,Dig,known,"",""\nDaS,Mik,known,"",""\nMik,SKB,known,"",""\nPKa,SKB,known,"",""\nWdM,VPP,known,"",""\nVPP,ThU,known,"",""\nThU,WXS,known,"",""\nWgM,WXS,known,"",""\nWdM,WgM,guesswork,"",""\nPKa,ITG,guesswork,"",""\n');
+  $("#events-data").val('date,title,desc,nodes,src\n"2013-12-12","t1","blubb","HPr,VPP","http://www.google.de/"\n"2014-01-02","t2","bla","","http://www.google.de/"\n"2014-01-17","t3","nope<br>nope<br>nope<br>nope","","http://www.google.de/"\n"2014-03-02","t2","bla","Thu,VPP","http://www.google.de/"\n"2014-03-17","t3","nope<br>nope<br>nope<br>nope","DuP,Gla","http://www.google.de/"\n"2014-03-27","t3","nope<br>nope<br>nope<br>nope","ARo","http://www.google.de/"');
+</script>
+
+<!-- the d3js graph -->
+<script>
+var showEventsForTimeSpan = function(a,b){}
+function renderVisualization() {
+
+d3.selectAll("#d3-graph *").remove();
+d3.selectAll(".link-info *").remove();
+d3.selectAll("#time-span-chooser *").remove();
+d3.selectAll("#events-box *").remove();
+
+showLinkInfo = function(link) {
+    if(!d3.event.altKey) {
+        return;
+    }
+    
+    d3.selectAll("line").style("stroke",null);
+    d3.select(this).style("stroke","red");
+    
+    d3.select(".link-info")
+    .style("visibility","visible")
+    .style("display",null)
+    .html(
+        "<table><tr><td>" + nodes[nodeToIdx[link.idA]].name + " / " + nodes[nodeToIdx[link.idB]].name + "<tr><td>" + link.desc + "<tr><td>" + link.src + "</table>" +
+        "<table><tr><td>" + link.idA + "<td>" + nodes[nodeToIdx[link.idA]].name + "<td>" + nodes[nodeToIdx[link.idA]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idA]].desc + "</table>" +
+        "<table><tr><td>" + link.idB + "<td>" + nodes[nodeToIdx[link.idB]].name + "<td>" + nodes[nodeToIdx[link.idB]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idB]].desc + "</table>"
+    );
+    
+}
+
+var w = +jQuery(window).width();
+var h = +jQuery(window).height();
+
+var xPosGraph = 10;
+var yPosGraph = 10;
+
+var hGraph = h;
+var wGraph = w;
+
+var nodeToIdx = {};
+
+var l;
+var width = wGraph,
+    height = hGraph,
+    radius = 10;
+
+var force = d3.layout.force()
+    .gravity(0.17)
+    .linkDistance(50)
+    .charge(-500)
+    .size([width, height]);
+
+var svg = d3.select("#d3-graph")
+    .attr("width", wGraph)
+    .attr("height", hGraph)
+    .attr("x",xPosGraph)
+    .attr("y",yPosGraph)
+;
+
+var nodes = [], links = [], events = [];
+d3.csv.parse($("#nodes-data").val(), function(node) {nodes.push(node);});
+d3.csv.parse($("#links-data").val(), function(link) {links.push(link);});
+
+<!-- rendering the graph -->
+
+for(var i = 0; i < nodes.length; i++) {
+    nodeToIdx[nodes[i]["id"]] = i;
+}
+  
+for(var j = 0; j < links.length; j++){
+    links[j]["source"] = nodeToIdx[links[j]["idA"]];
+    links[j]["target"] = nodeToIdx[links[j]["idB"]];
+}
+
+l=links;
+    
+//console.log(links);
+// Start the force layout.
+force
+  .nodes(nodes)
+  .links(links)
+  .on("tick", tick)
+  .start();
+
+// Create the link lines.
+var link = svg.selectAll(".link")
+  .data(links)
+  .enter().append("line")
+  .attr("class", function(c) {return "link link-" + c["type"];})
+  .on("click",showLinkInfo)
+  ;
+  
+  
+// Create the node circles.
+var node = svg.selectAll(".node")
+  .data(nodes)
+  .enter().append("g").attr("id",function(n){return n["id"];});
+  
+node.append("circle")
+  .attr("class", function(n) {return "node node-" + n["type"];})
+  .attr("r", radius)
+  .call(force.drag);
+  
+node.append("text")
+  .attr("dx", 10)
+  .attr("dy", 10)
+  .text(function(d) { return d.id; });
+  
+node.on("mouseover", function (d) {
+        d3.select(this).select('text')
+            .attr("font-weight","bold")
+            .text(function(d){
+                return d["name"];
+            })
+         });
+
+ node.on("mouseout", function (d) {
+        d3.select(this).select('text')
+            .attr("font-weight",null)
+            .text(function(d){
+                return d["id"];
+            })
+         });
+
+
+function tick() {
+  link.attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+      
+  // http://mbostock.github.io/d3/talk/20110921/bounding.html
+  respectTheBox = function(coord,size) {
+      return Math.max(radius, Math.min(size - radius, coord));
+  }
+  //node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  node.attr("transform", function(d) { return "translate(" + respectTheBox(d.x,width) + "," + respectTheBox(d.y,height) + ")"; });
+}
+ 
+<!-- rendering the chronological data -->
+
+d3.csv.parse($("#events-data").val(), function(event) {event.date = d3.time.format("%Y-%m-%d").parse(event.date); events.push(event);});
+
+var minYear = d3.min(events,function(d){return d.date.getFullYear();});
+var maxYear = d3.max(events,function(d){return d.date.getFullYear();});
+var numOfYears = maxYear - minYear + 1;
+
+var ymdToIdx = {};
+var eventsPerMonth = {};
+
+for(var i = 0; i < events.length; i++) {
+
+    var y = events[i].date.getFullYear();
+    var m = events[i].date.getMonth()+1;
+    var d = events[i].date.getDate();
+    
+    if(ymdToIdx[y] == undefined) {
+        ymdToIdx[y] = {};
+        ymdToIdx[y][m] = {};
+        ymdToIdx[y][m][d] = [];
+        
+        eventsPerMonth[y] = {};
+        eventsPerMonth[y][m] = 0;
+    } else {
+        if(ymdToIdx[y][m] == undefined) {
+            ymdToIdx[y][m] = {};
+            ymdToIdx[y][m][d] = [];
+            
+            eventsPerMonth[y][m] = 0;
+        } else {
+            if(ymdToIdx[y][m][d] == undefined) {
+                ymdToIdx[y][m][d] = [];
+            }
+        }
+    }
+    
+    eventsPerMonth[y][m]++;
+    ymdToIdx[y][m][d].push(i);
+}
+
+// set up month picker
+
+var monthChoiceTable = "<table><tr>";
+for(var y = minYear; y <= maxYear; y++) {
+  monthChoiceTable += "<td colspan=12>"+y+"</td>";
+}
+monthChoiceTable += "</tr><tr>";
+for(var y = minYear; y <= maxYear; y++) {
+  for(var m = 1; m <= 12; m++) {
+    monthChoiceTable += "<td style='background-color:"+getColorForNum(eventsPerMonth  [y][m])+"' onClick='showEventsForTimeSpan(new Date("+y+","+(m-1)+",1),new Date("+y+","+(m)+",0));'>" + m + "</td>";
+  }
+}
+monthChoiceTable += "</tr></table>";
+
+d3.select("#time-span-chooser").html(monthChoiceTable);
+
+function getColorForNum(num) {
+  if(num == undefined)
+    return "#eee";
+  else if(num == 1)
+    return "rgba(47,134,43,.3)";
+  else if(num == 2)
+    return "rgba(47,134,43,.6)";
+  else if(num >= 3)
+    return "rgba(47,134,43,1)";
+}
+
+showEventsForTimeSpan = function(a,b){
+
+    var eventsNode = d3.select("#events-box");
+    eventsNode.selectAll("*").remove();
+      
+    eventsNode = eventsNode.append("div").attr("id","events-accordion-resizer")
+      .append("div").attr("id","events-accordion");
+    
+    var ay = a.getFullYear();
+    var am = a.getMonth()+1;
+    var ad = a.getDate();
+    
+    var iDate = a;
+
+    for(var i = ad; +iDate <= +b; i++) {
+      iDate = new Date(ay,am-1,i);
+      
+      var iy = iDate.getFullYear();
+      var im = iDate.getMonth()+1;
+      var id = iDate.getDate();
+      
+      var eventsThatDay = ymdToIdx[iy];
+      if(eventsThatDay == undefined) continue;
+      var eventsThatDay = eventsThatDay[im];
+      if(eventsThatDay == undefined) continue;
+      var eventsThatDay = eventsThatDay[id];
+      if(eventsThatDay == undefined) continue;
+      
+      for(var e = 0; e < eventsThatDay.length; e++) {
+        var eventIdx = eventsThatDay[e];
+        
+        eventsNode.append("h3").text(iy+"-"+im+"-"+id+" / "+events[eventIdx].title)
+          .attr("nodes",events[eventIdx].nodes)
+          .on("mouseover",function(){d3.selectAll("#"+d3.select(this).attr("nodes").replace(/,/," circle,#")+" circle").style({"stroke":"#f00","stroke-width":"5px"});})
+          .on("mouseout",function(){d3.selectAll("#"+d3.select(this).attr("nodes").replace(/,/," circle,#")+" circle").style({"stroke":null,"stroke-width":null});})
+        eventsNode.append("div").append("p").html(events[eventIdx].desc);
+      }
+    }
+    
+    $(function() {
+      $( "#events-accordion" ).accordion({heightStyle: "fill"});
+    });
+    $(function() {
+      $( "#events-accordion-resizer" ).resizable({
+        minHeight: 140,
+        minWidth: 200,
+        resize: function() {
+          $( "#events-accordion" ).accordion( "refresh" );
+        }
+      });
+      
+      $( "#events-accordion" ).accordion( "refresh" );
+    });
+    
+}
+}
+</script>
+
+</body>
+</html>
