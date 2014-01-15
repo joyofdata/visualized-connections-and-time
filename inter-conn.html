@@ -473,8 +473,8 @@ showEventsForTimeSpan = function(a,b){
         
         eventsNode.append("h3").text(iy+"-"+im+"-"+id+" / "+events[eventIdx].title)
           .attr("nodes",events[eventIdx].nodes)
-          .on("mouseover",function(){d3.selectAll("#"+d3.select(this).attr("nodes").replace(/,/," circle,#")+" circle").style({"stroke":"#f00","stroke-width":"5px"});})
-          .on("mouseout",function(){d3.selectAll("#"+d3.select(this).attr("nodes").replace(/,/," circle,#")+" circle").style({"stroke":null,"stroke-width":null});})
+          .on("mouseover",function(){d3.selectAll("#"+d3.select(this).attr("nodes").replace(/,/g," circle,#")+" circle").style({"stroke":"#f00","stroke-width":"5px"});})
+          .on("mouseout",function(){d3.selectAll("#"+d3.select(this).attr("nodes").replace(/,/g," circle,#")+" circle").style({"stroke":null,"stroke-width":null});})
         eventsNode.append("div").append("p").html(events[eventIdx].desc);
       }
     }
