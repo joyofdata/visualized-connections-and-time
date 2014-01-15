@@ -283,20 +283,20 @@ node.append("text")
   .text(function(d) { return d.id; });
   
 node.on("mouseover", function (d) {
-        d3.select(this).select('text')
-            .attr("font-weight","bold")
-            .text(function(d){
-                return d["name"];
-            })
-         });
+  var xy = d3.select(this).attr("transform").match(/[0-9.]+/gm);
+  var x = +xy[0];
+  var y = +xy[1];
+
+  d3.select("#enlarged-node-label").remove();
+  d3.select("#d3-graph").append("text").attr("id","enlarged-node-label").text(d["name"]).attr("x",x).attr("y",y).attr("dx",10).attr("dy",10).attr("font-weight","bold");
+  
+  d3.select(this).select("text").text("");
+});
 
  node.on("mouseout", function (d) {
-        d3.select(this).select('text')
-            .attr("font-weight",null)
-            .text(function(d){
-                return d["id"];
-            })
-         });
+  d3.select("#enlarged-node-label").remove();
+  d3.select(this).select("text").text(d["id"]);
+});
 
 
 function tick() {
