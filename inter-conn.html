@@ -415,7 +415,8 @@ for(var y = minYear; y <= maxYear; y++) {
 monthChoiceTable += "</tr><tr>";
 for(var y = minYear; y <= maxYear; y++) {
   for(var m = 1; m <= 12; m++) {
-    monthChoiceTable += "<td style='background-color:"+getColorForNum(eventsPerMonth  [y][m])+"' onClick='showEventsForTimeSpan(new Date("+y+","+(m-1)+",1),new Date("+y+","+(m)+",0));'>" + m + "</td>";
+    var epm = (eventsPerMonth[y] == undefined) ? undefined : eventsPerMonth[y][m];
+    monthChoiceTable += "<td style='background-color:"+getColorForNum(epm)+"' onClick='showEventsForTimeSpan(new Date("+y+","+(m-1)+",1),new Date("+y+","+(m)+",0));'>" + m + "</td>";
   }
 }
 monthChoiceTable += "</tr></table>";
