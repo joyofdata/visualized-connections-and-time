@@ -26,6 +26,7 @@
     display: inline-block;
     position: absolute;
     top:10%;left:80%;
+    width:300px;
   }
   
   #time-span-chooser {
@@ -44,7 +45,7 @@
   
   #events-accordion-resizer {
     padding: 10px;
-    width: 200px;
+    width: 400px;
     height: 220px;
   }
 
@@ -479,7 +480,7 @@ showEventsForTimeSpan = function(a,b){
     $(function() {
       $( "#events-accordion-resizer" ).resizable({
         minHeight: 140,
-        minWidth: 200,
+        minWidth: 400,
         resize: function() {
           $( "#events-accordion" ).accordion( "refresh" );
         }
