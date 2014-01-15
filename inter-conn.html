@@ -271,6 +271,22 @@ var nodes = [], links = [], events = [];
 d3.csv.parse($("#nodes-data").val(), function(node) {nodes.push(node);});
 d3.csv.parse($("#links-data").val(), function(link) {links.push(link);});
 
+// check consistency of links and nodes
+var nodesLookup = {};
+
+for(var i = 0; i < nodes.length; i++) {
+  nodesLookup[nodes[i]["id"]] = true;
+}
+
+for(var i = 0; i < links.length; i++) {
+  if(nodesLookup[links[i]["idA"]] == undefined)
+    console.log("no node found: " + links[i]["idA"]);
+    
+  if(nodesLookup[links[i]["idB"]] == undefined)
+    console.log("no node found: " + links[i]["idB"]);
+}
+
+
 <!-- rendering the graph -->
 
 for(var i = 0; i < nodes.length; i++) {
