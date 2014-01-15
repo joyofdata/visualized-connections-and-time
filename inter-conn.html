@@ -222,10 +222,39 @@ document.getElementById('data-files').addEventListener('change', handleFileSelec
 var showEventsForTimeSpan = function(a,b){}
 function renderVisualization() {
 
+// resetting the UI for fresh rendering after data was changed
+
 d3.selectAll("#d3-graph *").remove();
 d3.selectAll(".link-info *").remove();
 d3.selectAll("#time-span-chooser *").remove();
 d3.selectAll("#events-box *").remove();
+
+// renders "(URL1)[x1],(URL2)[x2],..." for displaying
+
+function renderSources(srcs, maxCharsPerURL) {
+  var srcs = srcs.split(/,/);
+  
+  var html = "";
+  for(var i = 0; i < srcs.length; i++) {
+    // "(a)[b]".match(/(\((.+)\))?(\[(.+)\])?/)
+    // ["(a)[b]", "(a)", "a", "[b]", "b"]
+    var matches = srcs[i].match(/(\((.+)\))? *(\[(.+)\])?/);
+    var url = (matches[2] == undefined) ? "#" : matches[2];
+    var info = (matches[4] == undefined) ? "" : " | " + matches[4];
+    
+    shortUrl = (function(url) {
+      if(url == undefined) return "-";
+      url = url.match(/:\/\/(.+)/);
+      url = url[1];
+      url = url.substring(0,maxCharsPerURL-1) + ((url.length > maxCharsPerURL) ? "..." : "");
+      return url;
+    })(url);
+    
+    html += "<a href='"+url+"' target='external'>"+shortUrl+info+"</a><br/>";
+  }
+  
+  return html;
+}
 
 showLinkInfo = function(link) {
     if(!d3.event.altKey) {
@@ -239,7 +268,7 @@ showLinkInfo = function(link) {
     .style("visibility","visible")
     .style("display",null)
     .html(
-        "<table><tr><td>" + nodes[nodeToIdx[link.idA]].name + " / " + nodes[nodeToIdx[link.idB]].name + "<tr><td>" + link.desc + "<tr><td>" + link.src + "</table>" +
+        "<table><tr><td>" + nodes[nodeToIdx[link.idA]].name + " / " + nodes[nodeToIdx[link.idB]].name + "<tr><td>" + link.desc + "<tr><td>" + renderSources(link.src,30) + "</table>" +
         "<table><tr><td>" + link.idA + "<td>" + nodes[nodeToIdx[link.idA]].name + "<td>" + nodes[nodeToIdx[link.idA]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idA]].desc + "</table>" +
         "<table><tr><td>" + link.idB + "<td>" + nodes[nodeToIdx[link.idB]].name + "<td>" + nodes[nodeToIdx[link.idB]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idB]].desc + "</table>"
     );
@@ -475,7 +504,7 @@ showEventsForTimeSpan = function(a,b){
           .attr("nodes",events[eventIdx].nodes)
           .on("mouseover",function(){d3.selectAll("#"+d3.select(this).attr("nodes").replace(/,/g," circle,#")+" circle").style({"stroke":"#f00","stroke-width":"5px"});})
           .on("mouseout",function(){d3.selectAll("#"+d3.select(this).attr("nodes").replace(/,/g," circle,#")+" circle").style({"stroke":null,"stroke-width":null});})
-        eventsNode.append("div").append("p").html(events[eventIdx].desc);
+        eventsNode.append("div").append("p").html(events[eventIdx].desc + "<br/><hr/><br/>"+renderSources(events[eventIdx].src,30));
       }
     }
     
