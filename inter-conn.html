@@ -137,6 +137,8 @@ g.day rect {
   <div id="tab-data">
     <div id="toolbar">
       <button id="render-visualization">play</button>
+      <button id="load-data" onClick="$('#data-files').trigger('click');">load data from file</button>
+      <input type="file" id="data-files" name="files[]" multiple style="display:none"/>
     </div>
     <div id="nodes-input-section" class="data-input-section">
       <span>nodes input</span><br/>
@@ -157,6 +159,41 @@ g.day rect {
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+<!-- 
+
+  load data from files into respective text area 
+  
+  sources:
+  http://www.html5rocks.com/en/tutorials/file/dndfiles/
+  http://stackoverflow.com/questions/9815625/reading-multiple-files-use-html5-filereader
+
+-->
+<script>
+function handleFileSelect(evt) {
+  function setup_reader(file) {
+    var reader = new FileReader();  
+    reader.onload = function(e) {  
+        if(file.name.match(/nodes/) != null) {
+          $("#nodes-data").val(e.target.result);
+        } else if(file.name.match(/links/) != null) {
+          $("#links-data").val(e.target.result);
+        } else if(file.name.match(/events/) != null) {
+          $("#events-data").val(e.target.result);
+        }
+    }
+    reader.readAsText(file, "UTF-8");
+  }
+  var files = evt.target.files;
+  var r = new FileReader();
+  
+  for(var i = 0; i < files.length; i++) {
+    setup_reader(files[i]);
+  }
+}
+
+document.getElementById('data-files').addEventListener('change', handleFileSelect, false);
+</script>
 
 <!-- set up of UI -->
 <script>
