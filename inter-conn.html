@@ -263,9 +263,9 @@ function renderSources(srcs, maxCharsPerURL) {
 }
 
 showLinkInfo = function(link) {
-    if(!d3.event.altKey) {
+    /*if(!d3.event.altKey) {
         return;
-    }
+    }*/
     
     d3.selectAll("line").style("stroke",null);
     d3.select(this).style("stroke","red");
