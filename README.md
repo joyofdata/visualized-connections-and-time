@@ -29,7 +29,7 @@ If you want to load the data from CSV files then the name of a file needs to con
 - `desc`: Description of the event.
 - `nodes`: IDs of involved nodes. Highlighted when hovering over header of event in event info box.
 - `src`: Sources for claims made.
-- 
+
 ### the `src` field:
 - `(http://www.example.org)`
 - `(http://www.google.com)[search term 'test']`
