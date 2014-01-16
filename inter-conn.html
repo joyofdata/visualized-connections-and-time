@@ -107,6 +107,10 @@ table {
     background-color:#EDF6FF;
 }
 
+.head-of-table {
+  background-color: #C7E3FF;
+}
+
 td {
     border: solid 1px black;
     padding: 5px;
@@ -266,15 +270,13 @@ showLinkInfo = function(link) {
     d3.selectAll("line").style("stroke",null);
     d3.select(this).style("stroke","red");
     
-    console.log(nodes[nodeToIdx[link.idA]],nodes[nodeToIdx[link.idB]])
-    
     d3.select(".link-info")
     .style("visibility","visible")
     .style("display",null)
     .html(
-        "<table><tr><td>" + nodes[nodeToIdx[link.idA]].name + " / " + nodes[nodeToIdx[link.idB]].name + "<tr><td>" + link.desc + "<tr><td>" + renderSources(link.src,30) + "</table>" +
-        "<table><tr><td>" + link.idA + "<td>" + nodes[nodeToIdx[link.idA]].name + "<td>" + nodes[nodeToIdx[link.idA]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idA]].desc + "<tr><td colspan=3>" + renderSources(nodes[nodeToIdx[link.idA]].src,30) + "</table>" +
-        "<table><tr><td>" + link.idB + "<td>" + nodes[nodeToIdx[link.idB]].name + "<td>" + nodes[nodeToIdx[link.idB]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idB]].desc + "<tr><td colspan=3>" + renderSources(nodes[nodeToIdx[link.idB]].src,30) + "</table>"
+        "<table><tr class='head-of-table'><td>" + nodes[nodeToIdx[link.idA]].name + " / " + nodes[nodeToIdx[link.idB]].name + "<tr><td>" + link.desc + "<tr><td>" + renderSources(link.src,30) + "</table>" +
+        "<table><tr class='head-of-table'><td>" + link.idA + "<td>" + nodes[nodeToIdx[link.idA]].name + "<td>" + nodes[nodeToIdx[link.idA]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idA]].desc + "<tr><td colspan=3>" + renderSources(nodes[nodeToIdx[link.idA]].src,30) + "</table>" +
+        "<table><tr class='head-of-table'><td>" + link.idB + "<td>" + nodes[nodeToIdx[link.idB]].name + "<td>" + nodes[nodeToIdx[link.idB]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idB]].desc + "<tr><td colspan=3>" + renderSources(nodes[nodeToIdx[link.idB]].src,30) + "</table>"
     );
     
 }
