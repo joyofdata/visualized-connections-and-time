@@ -14,6 +14,8 @@ Three CSV data sets:
 
 If you want to load the data from CSV files then the name of a file needs to contain the string "nodes", "links" or "events" depening on what data is contained.
 
+Field values may not contain double quotes.
+
 ### nodes:
 - `id`: ID node can be referred to with. Also used as label in graph.
 - `name`: Full name of nodes entity. Displayed in graph when you hover over a node.
@@ -39,4 +41,4 @@ If you want to load the data from CSV files then the name of a file needs to con
 - `(http://www.google.com)[search term 'test']`
 - `['a book title' page 32]`
 
-A URL has to start with "http://" or "https://" and may not contain commas.
+A URL has to start with "http://" or "https://" and may not contain commas. The description "[...]" may contain commas.
