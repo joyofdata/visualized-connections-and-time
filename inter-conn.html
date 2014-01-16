@@ -104,7 +104,7 @@
 table {
     border-collapse: collapse;
     margin: 5px;
-    background-color:#D3E8FF;
+    background-color:#EDF6FF;
 }
 
 td {
@@ -232,6 +232,8 @@ d3.selectAll("#events-box *").remove();
 // renders "(URL1)[x1],(URL2)[x2],..." for displaying
 
 function renderSources(srcs, maxCharsPerURL) {
+  if(srcs == undefined) return "-";
+  
   var srcs = srcs.split(/,/);
   
   var html = "";
@@ -242,8 +244,8 @@ function renderSources(srcs, maxCharsPerURL) {
     var url = (matches[2] == undefined) ? "#" : matches[2];
     var info = (matches[4] == undefined) ? "" : " | " + matches[4];
     
-    shortUrl = (function(url) {
-      if(url == undefined) return "-";
+    shortUrl = (function(url) {      console.log(url);
+      if(url == undefined || url == "#") return "";
       url = url.match(/:\/\/(.+)/);
       url = url[1];
       url = url.substring(0,maxCharsPerURL-1) + ((url.length > maxCharsPerURL) ? "..." : "");
@@ -264,13 +266,15 @@ showLinkInfo = function(link) {
     d3.selectAll("line").style("stroke",null);
     d3.select(this).style("stroke","red");
     
+    console.log(nodes[nodeToIdx[link.idA]],nodes[nodeToIdx[link.idB]])
+    
     d3.select(".link-info")
     .style("visibility","visible")
     .style("display",null)
     .html(
         "<table><tr><td>" + nodes[nodeToIdx[link.idA]].name + " / " + nodes[nodeToIdx[link.idB]].name + "<tr><td>" + link.desc + "<tr><td>" + renderSources(link.src,30) + "</table>" +
-        "<table><tr><td>" + link.idA + "<td>" + nodes[nodeToIdx[link.idA]].name + "<td>" + nodes[nodeToIdx[link.idA]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idA]].desc + "</table>" +
-        "<table><tr><td>" + link.idB + "<td>" + nodes[nodeToIdx[link.idB]].name + "<td>" + nodes[nodeToIdx[link.idB]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idB]].desc + "</table>"
+        "<table><tr><td>" + link.idA + "<td>" + nodes[nodeToIdx[link.idA]].name + "<td>" + nodes[nodeToIdx[link.idA]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idA]].desc + "<tr><td colspan=3>" + renderSources(nodes[nodeToIdx[link.idA]].src,30) + "</table>" +
+        "<table><tr><td>" + link.idB + "<td>" + nodes[nodeToIdx[link.idB]].name + "<td>" + nodes[nodeToIdx[link.idB]].type + "<tr><td colspan=3>" + nodes[nodeToIdx[link.idB]].desc + "<tr><td colspan=3>" + renderSources(nodes[nodeToIdx[link.idB]].src,30) + "</table>"
     );
     
 }
