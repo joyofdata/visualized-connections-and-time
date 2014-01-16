@@ -1,6 +1,10 @@
 # inter-conn 0.0.0  
 Tool for visualizing how entities are related in context of time.
 
+- [article on my web site](http://www.joyofdata.de/blog/tool-visualization-connections-agents-entities-for-redtubegate/)
+- [ready to use on interconn.joyofdata.de](http://interconn.joyofdata.de/)
+- [data on redtubegate case](https://github.com/joyofdata/data/tree/master/redtube-abmahnungen)
+
 ## CSVs
 
 Three CSV data sets:
@@ -34,3 +38,5 @@ If you want to load the data from CSV files then the name of a file needs to con
 - `(http://www.example.org)`
 - `(http://www.google.com)[search term 'test']`
 - `['a book title' page 32]`
+
+A URL has to start with "http://" or "https://" and may not contain commas.
